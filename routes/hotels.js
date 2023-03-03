@@ -8,13 +8,22 @@ var { checkIfAuthorized, isAdmin } = require("./authMiddlewares");
 var hotelService = new HotelService(db);
 /* GET hotels listing. */
 router.get('/', async function(req, res, next) {
-  const hotels = await hotelService.get();
-  res.render('hotels', { hotels: hotels });
+  let hotels = await hotelService.get();
+  if(req.query.location != null) {
+    hotels = hotels.filter(hotel => hotel.Location.toLowerCase() == req.query.location.toLowerCase());    
+  }
+  res.status(200).render('hotels', { hotels: hotels, user: req.user });
 });
 
 router.get('/:hotelId', async function(req, res, next) {
-  const hotel = await hotelService.getHotelDetails(req.params.hotelId);
-  res.render('hotelDetails', { hotel: hotel });
+  const userId = req.user?.id ?? 0;
+  const username = req.user?.username ?? 0;
+  const hotel = await hotelService.getHotelDetails(req.params.hotelId, userId);
+  if(hotel === null) {
+    next(createError(404));
+    return;
+  }
+  res.render('hotelDetails', { hotel: hotel, userId, username, user: req.user });
 });
 
 router.post('/:hotelId/rate', checkIfAuthorized, jsonParser, async function(req, res, next) {
