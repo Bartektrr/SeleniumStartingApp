@@ -33,20 +33,20 @@ router.post('/:hotelId/rate', checkIfAuthorized, jsonParser, async function(req,
   res.end()
 });
 
-router.post('/', checkIfAuthorized, jsonParser, async function(req, res, next) {
+router.post('/', checkIfAuthorized, isAdmin, jsonParser, async function(req, res, next) {
   let Name = req.body.Name;
   let Location = req.body.Location;
   await hotelService.create(Name, Location);
   res.end()
 });
 
-router.delete('/', checkIfAuthorized, jsonParser, async function(req, res, next) {
+router.delete('/', checkIfAuthorized, isAdmin, jsonParser, async function(req, res, next) {
   let id = req.body.id;
   await hotelService.deleteHotel(id);
   res.end()
 });
 
-router.delete('/:id', checkIfAuthorized, jsonParser, async function(req, res, next) {
+router.delete('/:id', checkIfAuthorized, isAdmin, jsonParser, async function(req, res, next) {
   await hotelService.deleteHotel(req.params.id);
   res.end()
 });
